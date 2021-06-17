@@ -26,7 +26,6 @@ struct ContentView: View {
     @State private var wakeUp = defaultWakeTime
     @State private var sleepAmount = 8.0
     @State private var coffeeAmount = 1
-    @State private var sleepTime = Date()
     
     @State private var alertTitle = ""
     @State private var alertMessage = ""
@@ -70,23 +69,18 @@ struct ContentView: View {
                 }
                 
                 Section{
-                    Text("Recommended Bedtime: \(formatter.string(from: sleepTime))")
-                        .font(.largeTitle)
+                    Text("Recommended bedtime:")
+                    Text(calculateBedTime())
+                        .font(.title)
                 }
             }
             .navigationTitle("BetterRest")
-            .navigationBarItems(trailing:
-                    Button(action:calculateBedTime) {
-                        Text("Calculate")
-                    }
-            )
         }
-//        .alert(isPresented: $showingAlert) {
-//            Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-//        }
+
     }
     
-    func calculateBedTime(){
+    func calculateBedTime() -> String {
+        
         let model = SleepCalculator()
         let components = Calendar.current.dateComponents([.hour, .minute], from: wakeUp)
         let hour = (components.hour ?? 0) * 60 * 60
@@ -96,18 +90,15 @@ struct ContentView: View {
             
             let prediction = try model.prediction(wake: Double(hour+minute), estimatedSleep: sleepAmount, coffee: Double(coffeeAmount))
             
-            sleepTime = wakeUp - prediction.actualSleep
+            let sleepTime = wakeUp - prediction.actualSleep
 
-            //alertMessage = formatter.string(from: sleepTime)
-            //alertTitle = "Your ideal bedtime is…"
+            return (formatter.string(from: sleepTime))
             
         } catch  {
-            // somthing happend here, it went wrong!!
-            //alertTitle = "Error"
-            //alertMessage = "Sorry, there was a problem calculating your bedtime."
+            return "Sorry, there was a problem calculating your bedtime."
         }
         
-        //showingAlert = true
+        
     }
 }
 
